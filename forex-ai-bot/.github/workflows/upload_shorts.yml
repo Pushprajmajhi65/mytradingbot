@@ -1,0 +1,38 @@
+name: YouTube Shorts Automation
+
+on:
+  schedule:
+    # Runs at 9AM, 12PM, 6PM IST (UTC+5:30)
+    - cron: '30 3 * * *'   # 9AM IST
+    - cron: '0 6 * * *'    # 12PM IST
+    - cron: '30 12 * * *'  # 6PM IST
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          sudo apt-get install ffmpeg -y
+      
+      - name: Create required directories
+        run: |
+          mkdir -p output temp
+      
+      - name: Run YouTube Automation
+        env:
+          AUTOMATED_RUN: "true"
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          cd src
+          python main.py
